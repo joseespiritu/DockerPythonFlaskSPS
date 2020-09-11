@@ -40,6 +40,30 @@ def get_users():
     response = json_util.dumps(users)
     return Response(response, mimetype='application/json')
 
+@app.route('/api/sps/helloworld/v1/<id>', methods=['GET'])
+def get_user(id):
+    user = mongo.db.users.find_one({'_id': ObjectId(id)})
+    response = json_util.dumps(user)
+    return Response(response, mimetype='application/json')
+
+@app.route('/api/sps/helloworld/v1/<id>', methods=['DELETE'])
+def delete_user(id):
+    mongo.db.users.delete_one({'_id':ObjectId(id)})
+    response = jsonify({'message': 'User ' + id + 'was Deleted successfully'})
+    return response
+
+@app.route('/api/sps/helloworld/v1/<id>', methods=['PUT'])
+def update_user(id):
+    username = request.json['username']
+    email = request.json['email']
+
+    if username and email:
+        mongo.db.users.update_one({'_id': ObjectId(id)}, {'$set': {
+            'username': username,
+            'email': email
+        }})
+        response = jsonify({'message': 'User ' + id + ' was updated successfully' })
+        return response
 
 @app.errorhandler(404)
 def not_found(error=None):
